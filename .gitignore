@@ -1,0 +1,57 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs and runtime output
+*.log
+logs/
+output/runtime/
+.playwright-cli/
+
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Frontend build artifacts
+frontend/dist/
+frontend/dist-ssr/
+
+# Backend build artifacts
+backend/target/
+target/
+*.jar
+*.war
+
+# Local and sensitive configuration
+*.local
+.env
+.env.*
+!.env.example
+backend/src/main/resources/application-db.yml
+backend/src/main/resources/application-dev.yml
+
+# Local planning notes
+task.md
+design-qa.md
+
+# IDE
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+.settings/
+
+# Test and coverage output
+coverage/
+playwright-report/
+test-results/
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo

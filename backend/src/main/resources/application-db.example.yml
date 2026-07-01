@@ -1,0 +1,44 @@
+spring:
+  autoconfigure:
+    exclude: []
+  datasource:
+    url: ${NEWSRSS_DB_URL:jdbc:postgresql://localhost:5432/newsrss}
+    username: ${NEWSRSS_DB_USERNAME:newsrss}
+    password: ${NEWSRSS_DB_PASSWORD:newsrss}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+newsrss:
+  rss:
+    http:
+      connect-timeout-seconds: ${NEWSRSS_RSS_CONNECT_TIMEOUT_SECONDS:10}
+      read-timeout-seconds: ${NEWSRSS_RSS_READ_TIMEOUT_SECONDS:60}
+      user-agent: ${NEWSRSS_RSS_USER_AGENT:NewsRss/0.0.1 (+https://local.newsrss)}
+  ai:
+    deepseek:
+      enabled: ${NEWSRSS_DEEPSEEK_ENABLED:false}
+      api-key: "${NEWSRSS_DEEPSEEK_API_KEY:}"
+      base-url: ${NEWSRSS_DEEPSEEK_BASE_URL:https://api.deepseek.com}
+      model: ${NEWSRSS_DEEPSEEK_MODEL:deepseek-v4-pro}
+      timeout-seconds: ${NEWSRSS_DEEPSEEK_TIMEOUT_SECONDS:300}
+  fetch:
+    scheduler:
+      enabled: ${NEWSRSS_FETCH_SCHEDULER_ENABLED:true}
+      fixed-delay-ms: ${NEWSRSS_FETCH_SCHEDULER_FIXED_DELAY_MS:120000}
+      initial-delay-ms: ${NEWSRSS_FETCH_SCHEDULER_INITIAL_DELAY_MS:150000}
+      batch-size: ${NEWSRSS_FETCH_SCHEDULER_BATCH_SIZE:5}
+    smoke:
+      enabled: false
+      urls: []
+
+server:
+  port: ${NEWSRSS_BACKEND_PORT:8080}

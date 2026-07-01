@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NewsRss V1 原型</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script defer src="./app.js"></script>
+  </head>
+  <body>
+    <div class="prototype-switcher" aria-label="原型画板切换">
+      <a class="active" href="#dashboard">驾驶舱</a>
+      <a href="#reader">阅读舱</a>
+      <a href="#feeds">订阅源</a>
+      <a href="#parser">模板实验室</a>
+      <a href="#mobile">移动端</a>
+    </div>
+
+    <main class="prototype-canvas">
+      <section id="dashboard" class="screen dashboard-screen" aria-label="首页驾驶舱原型">
+        <aside class="sidebar">
+          <div class="brand">
+            <div class="brand-mark">NR</div>
+            <div>
+              <div class="brand-name">NewsRss</div>
+              <div class="brand-subtitle">信息流控制台</div>
+            </div>
+          </div>
+
+          <nav class="nav-list">
+            <a class="nav-item active" href="#dashboard"><span>◇</span>驾驶舱</a>
+            <a class="nav-item" href="#reader"><span>◈</span>阅读</a>
+            <a class="nav-item" href="#feeds"><span>▤</span>订阅源</a>
+            <a class="nav-item" href="#parser"><span>⌘</span>解析模板</a>
+            <a class="nav-item" href="#favorite"><span>☆</span>收藏</a>
+            <a class="nav-item" href="#later"><span>◷</span>稍后读</a>
+            <a class="nav-item" href="#logs"><span>≋</span>抓取日志</a>
+            <a class="nav-item" href="#settings"><span>⚙</span>设置</a>
+          </nav>
+
+          <div class="sync-card">
+            <div class="status-line"><span class="dot success"></span>同步运行中</div>
+            <p>8 个源正在轮询<br />下一轮 04:32</p>
+          </div>
+        </aside>
+
+        <div class="screen-body">
+          <header class="topbar">
+            <div>
+              <h1>资讯驾驶舱</h1>
+              <p>聚合抓取、阅读状态和源健康的一屏总览</p>
+            </div>
+            <div class="toolbar">
+              <div class="search">搜索标题、源、标签</div>
+              <button type="button">全局刷新</button>
+              <button type="button" class="ghost">深色</button>
+              <div class="avatar">Y</div>
+            </div>
+          </header>
+
+          <div class="metric-grid">
+            <article class="metric cyan">
+              <span>今日新增</span>
+              <strong>248</strong>
+              <em>+18% 较昨日</em>
+            </article>
+            <article class="metric lime">
+              <span>未读文章</span>
+              <strong>1,024</strong>
+              <em>优先处理 AI / 开发</em>
+            </article>
+            <article class="metric amber">
+              <span>活跃订阅源</span>
+              <strong>86</strong>
+              <em>8 个正在抓取</em>
+            </article>
+            <article class="metric coral">
+              <span>异常源</span>
+              <strong>5</strong>
+              <em>需要模板或网络检查</em>
+            </article>
+          </div>
+
+          <section class="pipeline-card" aria-label="RSS 抓取管线">
+            <div>
+              <h2>RSS 抓取管线</h2>
+              <p>从源请求到文章入库，保留原始 payload 方便模板回放</p>
+            </div>
+            <ol class="pipeline-steps">
+              <li><span>01</span><b>抓取</b><em>86 源排队</em></li>
+              <li><span>02</span><b>解析</b><em>模板命中 94%</em></li>
+              <li><span>03</span><b>去重</b><em>GUID / URL / 指纹</em></li>
+              <li><span>04</span><b>入库</b><em>新增 248</em></li>
+            </ol>
+            <div class="pipeline-alert">
+              <span class="dot amber"></span>
+              3 个源需要模板复核
+            </div>
+          </section>
+
+          <div class="dashboard-layout">
+            <section class="panel stream-panel">
+              <div class="panel-title-row">
+                <div>
+                  <h2>实时信息流</h2>
+                  <p>按发布时间聚合，未读优先</p>
+                </div>
+                <div class="tag-row">
+                  <span class="tag cyan">AI</span>
+                  <span class="tag lime">开发</span>
+                </div>
+              </div>
+
+              <article class="article-row selected">
+                <span class="unread-dot"></span>
+                <div>
+                  <h3>OpenAI 推出面向企业知识库的新检索能力</h3>
+                  <p>AI Daily · 09:42 · 3 分钟前</p>
+                  <small>模板命中 content:encoded，已提取封面与摘要</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot lime"></span>
+                <div>
+                  <h3>PostgreSQL 18 查询优化器改进分析</h3>
+                  <p>DB Weekly · 09:16 · 29 分钟前</p>
+                  <small>适合加入后端收藏夹，全文长度 8 分钟</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot amber"></span>
+                <div>
+                  <h3>Vue 生态更新：更轻量的状态管理模式</h3>
+                  <p>Frontend Focus · 08:51 · 54 分钟前</p>
+                  <small>源健康正常，字段映射全部命中</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot violet"></span>
+                <div>
+                  <h3>RSSHub 热门路由新增多个科技媒体源</h3>
+                  <p>RSSHub Radar · 08:20 · 1 小时前</p>
+                  <small>建议加入公共模板库观察列表</small>
+                </div>
+              </article>
+            </section>
+
+            <section class="panel health-panel">
+              <h2>源健康雷达</h2>
+              <p>抓取状态、解析状态和延迟</p>
+              <div class="health-row success"><span>正常</span><strong>72</strong><i></i></div>
+              <div class="health-row cyan"><span>抓取中</span><strong>8</strong><i></i></div>
+              <div class="health-row amber"><span>解析异常</span><strong>3</strong><i></i></div>
+              <div class="health-row coral"><span>网络异常</span><strong>2</strong><i></i></div>
+            </section>
+
+            <section class="panel tag-panel">
+              <h2>今日热词</h2>
+              <div class="tag-cloud">
+                <span class="tag cyan">OpenAI</span>
+                <span class="tag lime">PostgreSQL</span>
+                <span class="tag amber">Vue</span>
+                <span class="tag cyan">RSSHub</span>
+                <span class="tag coral">安全</span>
+                <span class="tag violet">架构</span>
+              </div>
+              <p>热词来自标题和摘要的轻量统计，后续可替换为 AI 关键词。</p>
+            </section>
+
+            <section class="panel log-panel">
+              <h2>最近抓取</h2>
+              <div class="log-row"><span class="dot success"></span><b>AI Daily</b><em>成功 · 新增 12</em></div>
+              <div class="log-row"><span class="dot amber"></span><b>TechCrunch</b><em>解析异常</em></div>
+              <div class="log-row"><span class="dot success"></span><b>DB Weekly</b><em>成功 · 新增 4</em></div>
+              <div class="log-row"><span class="dot coral"></span><b>设计周刊</b><em>网络超时</em></div>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section id="reader" class="screen reader-screen" aria-label="三栏阅读原型">
+        <aside class="sidebar compact">
+          <div class="brand">
+            <div class="brand-mark">NR</div>
+            <div>
+              <div class="brand-name">NewsRss</div>
+              <div class="brand-subtitle">阅读舱</div>
+            </div>
+          </div>
+          <nav class="nav-list">
+            <a class="nav-item" href="#dashboard"><span>◇</span>驾驶舱</a>
+            <a class="nav-item active" href="#reader"><span>◈</span>阅读</a>
+            <a class="nav-item" href="#feeds"><span>▤</span>订阅源</a>
+            <a class="nav-item" href="#parser"><span>⌘</span>解析模板</a>
+          </nav>
+        </aside>
+
+        <div class="screen-body">
+          <header class="topbar">
+            <div>
+              <h1>沉浸阅读</h1>
+              <p>左侧筛选，中间扫读，右侧保留上下文阅读</p>
+            </div>
+            <div class="toolbar">
+              <div class="search">搜索文章</div>
+              <button type="button">刷新当前源</button>
+            </div>
+          </header>
+
+          <div class="reader-layout">
+            <section class="panel filters">
+              <h2>过滤器</h2>
+              <button class="filter active" type="button"><span>全部</span><b>1,024</b></button>
+              <button class="filter" type="button"><span>未读</span><b>638</b></button>
+              <button class="filter" type="button"><span>收藏</span><b>86</b></button>
+              <button class="filter" type="button"><span>稍后读</span><b>42</b></button>
+              <button class="filter" type="button"><span>今日更新</span><b>248</b></button>
+              <hr />
+              <h3>源分组</h3>
+              <div class="source-line"><span class="dot cyan"></span>AI<em>124</em></div>
+              <div class="source-line"><span class="dot success"></span>开发<em>86</em></div>
+              <div class="source-line"><span class="dot amber"></span>财经<em>48</em></div>
+              <div class="source-line"><span class="dot violet"></span>设计<em>36</em></div>
+            </section>
+
+            <section class="panel article-list">
+              <div class="panel-title-row">
+                <h2>未读优先</h2>
+                <span class="tag cyan">智能排序</span>
+              </div>
+              <article class="article-row selected">
+                <span class="unread-dot"></span>
+                <div>
+                  <h3>OpenAI 企业知识库检索能力升级</h3>
+                  <p>AI Daily · 09:42 · 未读</p>
+                  <small>新的检索链路对内部知识库同步更友好。</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot cyan"></span>
+                <div>
+                  <h3>RSS 模板公共库的版本设计思路</h3>
+                  <p>RSSHub Radar · 09:08</p>
+                  <small>多个源复用模板时需要保留版本和回滚。</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot lime"></span>
+                <div>
+                  <h3>PostgreSQL JSONB 索引策略复盘</h3>
+                  <p>DB Weekly · 08:44</p>
+                  <small>raw_payload 保存后，查询策略需要谨慎设计。</small>
+                </div>
+              </article>
+              <article class="article-row">
+                <span class="unread-dot violet"></span>
+                <div>
+                  <h3>Vue 3 复杂页面状态分层实践</h3>
+                  <p>Frontend Focus · 08:12</p>
+                  <small>Pinia store 与路由查询参数的边界划分。</small>
+                </div>
+              </article>
+            </section>
+
+            <article class="panel reader-detail">
+              <div class="tag-row">
+                <span class="tag cyan">AI Daily</span>
+                <span class="tag lime">未读</span>
+              </div>
+              <h2>OpenAI 企业知识库检索能力升级，RSS 阅读器如何借力做更好的信息筛选</h2>
+              <p class="reader-meta">09:42 · 作者 News Bot · 原文链接已保存 · 预计阅读 6 分钟</p>
+              <div class="reader-tools" aria-label="阅读工具">
+                <button type="button" data-font="small">A-</button>
+                <button type="button" data-font="large">A+</button>
+                <button type="button" data-width="narrow">窄行宽</button>
+                <button type="button" data-width="wide">宽行宽</button>
+              </div>
+              <hr />
+              <section class="insight-box">
+                <b>速读摘要</b>
+                <p>这篇文章适合判断企业知识库检索能力如何影响 RSS 阅读器的摘要、推荐和检索体验。</p>
+              </section>
+              <p>RSS 阅读器的核心不只是把源抓回来，而是把来源、时间、正文、封面、标签和阅读状态压成一致的数据结构。解析模板让不同站点的字段差异被收束到可维护的配置里。</p>
+              <p>在这个版本里，每篇文章都会保留原始 payload。模板调整之后，可以重新预览和回放解析结果，避免因为某个源结构变动导致历史数据不可恢复。</p>
+              <blockquote>解析模板不是额外复杂度，而是 RSS 聚合系统面对真实世界混乱字段时的稳定器。</blockquote>
+              <p>后续可以在文章入库后追加摘要、关键词和相关性分数，但第一版应该先把抓取、去重、状态和阅读体验做稳。</p>
+              <section class="related-box">
+                <h3>同源最新</h3>
+                <a href="#reader">RSS 阅读器如何处理全文抽取失败</a>
+                <a href="#reader">企业知识库检索和个人信息流的边界</a>
+              </section>
+              <div class="action-row">
+                <button type="button">收藏</button>
+                <button type="button">稍后读</button>
+                <button type="button">打开原文</button>
+                <button type="button" class="ghost">已读</button>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="feeds" class="screen admin-screen" aria-label="订阅源和解析模板管理原型">
+        <aside class="sidebar compact">
+          <div class="brand">
+            <div class="brand-mark">NR</div>
+            <div>
+              <div class="brand-name">NewsRss</div>
+              <div class="brand-subtitle">管理台</div>
+            </div>
+          </div>
+          <nav class="nav-list">
+            <a class="nav-item active" href="#feeds"><span>▤</span>订阅源</a>
+            <a class="nav-item" href="#parser"><span>⌘</span>解析模板</a>
+            <a class="nav-item" href="#logs"><span>≋</span>抓取日志</a>
+          </nav>
+        </aside>
+
+        <div class="screen-body admin-body">
+          <header class="topbar">
+            <div>
+              <h1>订阅源管理</h1>
+              <p>接入、分组、模板绑定和健康状态管理</p>
+            </div>
+            <div class="toolbar">
+              <button type="button">新增源</button>
+              <button type="button" class="ghost">导入 OPML</button>
+              <button type="button" class="ghost">导出 OPML</button>
+            </div>
+          </header>
+
+          <section class="feed-health-strip" aria-label="订阅源健康概览">
+            <div><span class="dot success"></span><b>72</b><em>健康源</em></div>
+            <div><span class="dot cyan"></span><b>8</b><em>抓取中</em></div>
+            <div><span class="dot amber"></span><b>3</b><em>模板异常</em></div>
+            <div><span class="dot coral"></span><b>2</b><em>网络异常</em></div>
+          </section>
+
+          <section class="panel feed-table-panel">
+            <h2>源列表</h2>
+            <div class="feed-table">
+              <div class="feed-head">源名称</div>
+              <div class="feed-head">分组</div>
+              <div class="feed-head">模板</div>
+              <div class="feed-head">状态</div>
+              <div class="feed-head">最近成功</div>
+              <div class="feed-head">文章</div>
+
+              <div>AI Daily</div><div>AI</div><div>通用 RSS</div><div><span class="dot success"></span>正常</div><div>09:42</div><div>12,486</div>
+              <div>TechCrunch</div><div>科技</div><div>媒体全文</div><div><span class="dot amber"></span>解析异常</div><div>08:16</div><div>7,942</div>
+              <div>DB Weekly</div><div>开发</div><div>通用 Atom</div><div><span class="dot success"></span>正常</div><div>08:44</div><div>2,108</div>
+              <div>Design Notes</div><div>设计</div><div>正文首图</div><div><span class="dot success"></span>正常</div><div>07:58</div><div>1,436</div>
+              <div>Finance Radar</div><div>财经</div><div>自定义时间</div><div><span class="dot coral"></span>网络异常</div><div>昨日</div><div>5,309</div>
+              <div>RSSHub Tech</div><div>综合</div><div>RSSHub</div><div><span class="dot cyan"></span>抓取中</div><div>09:40</div><div>18,220</div>
+            </div>
+          </section>
+
+          <aside class="panel feed-drawer">
+            <h2>新增 RSS 源</h2>
+            <label>RSS URL</label>
+            <div class="input">https://example.com/feed.xml</div>
+            <button type="button">自动探测</button>
+            <p class="detected">已探测：TechCrunch<br />站点链接、标题、图标已读取</p>
+            <label>分组</label>
+            <div class="input">科技</div>
+            <label>解析模板</label>
+            <div class="input">媒体全文模板</div>
+            <h3>最近 5 条预览</h3>
+            <article class="preview-card">
+              <h4>AI 芯片行业新融资</h4>
+              <p>标题命中 title，发布时间命中 pubDate</p>
+            </article>
+            <section class="risk-card">
+              <b>保存前检查</b>
+              <p><span class="dot amber"></span>正文字段疑似只有摘要，建议绑定“媒体全文模板”。</p>
+            </section>
+            <div class="action-row">
+              <button type="button">保存源</button>
+              <button type="button" class="ghost">取消</button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section id="parser" class="screen parser-screen" aria-label="解析模板实验室原型">
+        <div class="screen-body no-sidebar">
+          <header class="topbar">
+            <div>
+              <h1>解析模板实验室</h1>
+              <p>用字段映射和预览调试解决不同 RSS 源结构差异</p>
+            </div>
+            <div class="toolbar">
+              <button type="button">新建模板</button>
+              <button type="button" class="ghost">重新预览</button>
+            </div>
+          </header>
+
+          <div class="parser-layout">
+            <section class="panel template-list">
+              <h2>模板列表</h2>
+              <button type="button" class="template-item active" data-template="通用 RSS"><b>通用 RSS</b><span>86 个源</span></button>
+              <button type="button" class="template-item" data-template="媒体全文"><b>媒体全文</b><span>12 个源</span></button>
+              <button type="button" class="template-item" data-template="RSSHub"><b>RSSHub</b><span>18 个源</span></button>
+              <button type="button" class="template-item" data-template="自定义时间"><b>自定义时间</b><span>4 个源</span></button>
+              <button type="button" class="template-item" data-template="正文首图"><b>正文首图</b><span>9 个源</span></button>
+              <div class="template-score">
+                <span>当前模板命中率</span>
+                <strong id="templateScore">94%</strong>
+              </div>
+            </section>
+
+            <section class="panel mapping-panel">
+              <h2>字段映射</h2>
+              <p>目标字段按优先级匹配候选 RSS 字段</p>
+              <label class="test-source-label" for="testSource">测试 RSS 源</label>
+              <div class="test-source-row">
+                <input id="testSource" type="text" value="https://example.com/feed.xml" />
+                <button type="button" id="previewTemplate">预览</button>
+              </div>
+              <div class="mapping-row"><b>标题</b><span>title</span><em>必填</em></div>
+              <div class="mapping-row"><b>链接</b><span>link / guid</span><em>必填</em></div>
+              <div class="mapping-row"><b>作者</b><span>author / dc:creator</span><em>可选</em></div>
+              <div class="mapping-row"><b>摘要</b><span>description / summary</span><em>可选</em></div>
+              <div class="mapping-row"><b>正文</b><span>content:encoded / description</span><em>核心</em></div>
+              <div class="mapping-row"><b>发布时间</b><span>pubDate / published / updated</span><em>核心</em></div>
+              <div class="mapping-row"><b>封面图</b><span>media:thumbnail / content:firstImage</span><em>可选</em></div>
+              <div class="cleanup-box">
+                <b>内容清洗规则</b>
+                <p>移除 script、style、广告选择器；保留原始 HTML；图片链接自动规范化。</p>
+              </div>
+            </section>
+
+            <section class="panel preview-panel">
+              <h2>解析预览</h2>
+              <p id="previewStatus">测试源：https://example.com/feed.xml</p>
+              <h3>原始字段树</h3>
+              <pre>item
+├─ title: OpenAI 企业检索升级
+├─ link: https://news.example/a1
+├─ pubDate: Mon, 29 Jun 2026
+├─ content:encoded: &lt;p&gt;...&lt;/p&gt;
+└─ media:thumbnail: cover.jpg</pre>
+              <h3>标准化结果</h3>
+              <article class="parsed-card">
+                <div class="fake-cover"></div>
+                <div>
+                  <h4>OpenAI 企业检索升级</h4>
+                  <p>AI Daily · 2026-06-29 09:42</p>
+                </div>
+                <small>正文命中 content:encoded，封面命中 media:thumbnail。</small>
+                <div class="tag-row">
+                  <span class="tag lime">命中 7/7</span>
+                  <span class="tag cyan">可保存</span>
+                </div>
+              </article>
+              <section class="hit-path">
+                <h3>字段命中路径</h3>
+                <div><b>title</b><span>item.title</span></div>
+                <div><b>content</b><span>item["content:encoded"]</span></div>
+                <div><b>cover</b><span>media:thumbnail.url</span></div>
+              </section>
+            </section>
+          </div>
+        </div>
+      </section>
+
+      <section id="mobile" class="mobile-frame" aria-label="移动端阅读原型">
+        <div class="mobile-top">
+          <h1>NewsRss</h1>
+          <div class="search">搜索资讯</div>
+          <div class="tag-row">
+            <span class="tag cyan">未读</span>
+            <span class="tag lime">AI</span>
+            <span class="tag amber">收藏</span>
+          </div>
+        </div>
+        <article class="mobile-card">
+          <p>AI Daily · 09:42</p>
+          <h2>OpenAI 企业知识库检索能力升级，RSS 阅读器如何借力</h2>
+          <span>解析模板让不同站点的字段差异被收束到可维护的配置里。</span>
+        </article>
+        <article class="mobile-reader">
+          <p>RSS 阅读器的核心不只是把源抓回来，而是把来源、时间、正文、封面、标签和阅读状态压成一致的数据结构。</p>
+          <p>模板调整之后，可以重新预览和回放解析结果，避免因为某个源结构变动导致历史数据不可恢复。</p>
+          <p>第一版先把抓取、去重、状态和阅读体验做稳。</p>
+        </article>
+        <nav class="mobile-nav">
+          <a href="#dashboard">首页</a>
+          <a class="active" href="#reader">阅读</a>
+          <a href="#feeds">源</a>
+          <a href="#settings">设置</a>
+        </nav>
+      </section>
+    </main>
+  </body>
+</html>

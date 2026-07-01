@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:media="http://search.yahoo.com/mrss/"
+     xmlns:newsrss="https://local.newsrss/schema">
+    <channel>
+        <title>M3 模板预览测试源</title>
+        <link>https://example.com</link>
+        <description>用于验证解析模板字段命中和清洗规则</description>
+        <language>zh-CN</language>
+        <item>
+            <guid>m3-1</guid>
+            <title>默认标题一</title>
+            <link>https://example.com/default-1</link>
+            <description>默认摘要一</description>
+            <newsrss:headline>模板标题一</newsrss:headline>
+            <newsrss:articleUrl>https://example.com/custom-1</newsrss:articleUrl>
+            <newsrss:summary>模板摘要一</newsrss:summary>
+            <newsrss:publishedText>2026-06-30 16:30:00</newsrss:publishedText>
+            <media:thumbnail url="https://example.com/custom-cover-1.jpg" />
+            <content:encoded><![CDATA[
+                <article>
+                    <p>第一条模板正文。</p>
+                    <div class="ad">广告内容</div>
+                    <img src="https://example.com/body-cover-1.jpg" onclick="bad()" />
+                </article>
+            ]]></content:encoded>
+        </item>
+        <item>
+            <guid>m3-2</guid>
+            <title>默认标题二</title>
+            <link>https://example.com/default-2</link>
+            <description>默认摘要二</description>
+            <newsrss:headline>模板标题二</newsrss:headline>
+            <newsrss:articleUrl>https://example.com/custom-2</newsrss:articleUrl>
+            <newsrss:summary>模板摘要二</newsrss:summary>
+            <newsrss:publishedText>bad-time</newsrss:publishedText>
+            <content:encoded><![CDATA[
+                <article><p>第二条模板正文。</p></article>
+            ]]></content:encoded>
+        </item>
+    </channel>
+</rss>
