@@ -538,6 +538,75 @@ function removeCustomFieldRow(index: number) {
 }
 
 /**
+ * 从原始字段树添加自定义字段映射，减少手动复制路径的操作。
+ */
+function addCustomFieldFromRawPath(row: FieldTreeRow) {
+  const normalizedPath = toCustomFieldPath(row.path.trim())
+  if (!normalizedPath || normalizedPath === '$') {
+    message.warning('当前字段路径不可作为自定义字段')
+    return
+  }
+  const existingRow = customFieldRows.find((customRow) => splitList(customRow.pathText).includes(normalizedPath))
+  if (existingRow) {
+    message.info(`字段路径已存在于自定义字段：${existingRow.fieldName || '未命名字段'}`)
+    return
+  }
+  const fieldName = createCustomFieldName(normalizedPath)
+  customFieldRows.push({
+    fieldName: uniqueCustomFieldName(fieldName),
+    pathText: normalizedPath,
+  })
+  message.success('已加入自定义字段')
+}
+
+/**
+ * 将原始字段树路径转换为更适合自定义字段的路径，数组下标会归一为通配符。
+ */
+function toCustomFieldPath(path: string) {
+  return path.replace(/\[\d+\]/g, '[]')
+}
+
+/**
+ * 将原始路径转换成适合作为 customFields key 的驼峰字段名。
+ */
+function createCustomFieldName(path: string) {
+  const segments = path
+    .replace(/\[\]/g, '')
+    .replace(/\[\d+\]/g, '')
+    .split('.')
+    .map((segment) => segment.trim())
+    .filter(Boolean)
+  const usefulSegments = segments.filter((segment) => !['foreignMarkup', 'attributes'].includes(segment))
+  const selectedSegments = (usefulSegments.length > 0 ? usefulSegments : segments).slice(-2)
+  const words = selectedSegments.flatMap((segment) => segment
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .split(/[^a-zA-Z0-9]+/)
+    .filter(Boolean))
+  if (words.length === 0) {
+    return 'customField'
+  }
+  return words.map((word, index) => {
+    const normalizedWord = word.toLowerCase()
+    return index === 0 ? normalizedWord : normalizedWord.charAt(0).toUpperCase() + normalizedWord.slice(1)
+  }).join('')
+}
+
+/**
+ * 避免自动生成的自定义字段名和已有字段重复。
+ */
+function uniqueCustomFieldName(fieldName: string) {
+  const existingNames = new Set(customFieldRows.map((row) => row.fieldName.trim()).filter(Boolean))
+  if (!existingNames.has(fieldName)) {
+    return fieldName
+  }
+  let index = 2
+  while (existingNames.has(`${fieldName}${index}`)) {
+    index += 1
+  }
+  return `${fieldName}${index}`
+}
+
+/**
  * 构建自定义字段映射配置。
  */
 function buildCustomFieldMapping() {
@@ -989,6 +1058,9 @@ onMounted(loadInitialData)
               <div v-for="row in fieldTreeRows" :key="row.path">
                 <code>{{ row.path }}</code>
                 <span>{{ row.value }}</span>
+                <NButton size="tiny" secondary type="primary" @click="addCustomFieldFromRawPath(row)">
+                  加入
+                </NButton>
               </div>
             </div>
           </article>
@@ -1410,7 +1482,8 @@ onMounted(loadInitialData)
 
 .field-tree div {
   display: grid;
-  grid-template-columns: minmax(180px, 0.55fr) 1fr;
+  grid-template-columns: minmax(180px, 0.5fr) minmax(160px, 1fr) auto;
+  align-items: center;
   gap: 12px;
   border-bottom: 1px solid rgb(36 48 68 / 0.55);
   padding-bottom: 8px;

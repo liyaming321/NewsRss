@@ -2,6 +2,7 @@ package com.newsrss.service.parser;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.newsrss.service.rss.ParsedArticleItem;
 import com.newsrss.service.rss.RssContentCleaner;
@@ -205,23 +206,63 @@ public class ParserTemplateNormalizer {
      * @return 命中的 JSON 节点，未命中时返回 null
      */
     private JsonNode resolvePath(JsonNode rootNode, String path) {
+        List<JsonNode> nodes = resolvePathValues(rootNode, path);
+        return nodes.isEmpty() ? null : nodes.get(0);
+    }
+
+    /**
+     * 按点号路径读取一个或多个 JSON 节点，支持 `items[].value` 聚合数组值。
+     *
+     * @param rootNode 根节点
+     * @param path 字段路径
+     * @return 命中的 JSON 节点列表
+     */
+    private List<JsonNode> resolvePathValues(JsonNode rootNode, String path) {
         if (rootNode == null || path == null || path.isBlank()) {
-            return null;
+            return List.of();
         }
-        JsonNode currentNode = rootNode;
+        List<JsonNode> currentNodes = List.of(rootNode);
         for (PathToken token : parsePath(path)) {
-            if (currentNode == null || currentNode.isMissingNode() || currentNode.isNull()) {
-                return null;
-            }
-            currentNode = currentNode.get(token.name());
-            if (token.index() != null) {
-                if (currentNode == null || !currentNode.isArray() || currentNode.size() <= token.index()) {
-                    return null;
+            List<JsonNode> nextNodes = new ArrayList<>();
+            for (JsonNode currentNode : currentNodes) {
+                if (currentNode == null || currentNode.isMissingNode() || currentNode.isNull()) {
+                    continue;
                 }
-                currentNode = currentNode.get(token.index());
+                JsonNode namedNode = currentNode.get(token.name());
+                if (namedNode == null || namedNode.isMissingNode() || namedNode.isNull()) {
+                    continue;
+                }
+                appendTokenMatches(nextNodes, namedNode, token);
             }
+            if (nextNodes.isEmpty()) {
+                return List.of();
+            }
+            currentNodes = nextNodes;
         }
-        return currentNode;
+        return List.copyOf(currentNodes);
+    }
+
+    /**
+     * 根据数组下标或数组通配符追加当前路径段命中的节点。
+     *
+     * @param nextNodes 下一轮待解析节点
+     * @param namedNode 当前命名节点
+     * @param token 路径 token
+     */
+    private void appendTokenMatches(List<JsonNode> nextNodes, JsonNode namedNode, PathToken token) {
+        if (token.arrayWildcard()) {
+            if (namedNode.isArray()) {
+                namedNode.forEach(nextNodes::add);
+            }
+            return;
+        }
+        if (token.index() != null) {
+            if (namedNode.isArray() && namedNode.size() > token.index()) {
+                nextNodes.add(namedNode.get(token.index()));
+            }
+            return;
+        }
+        nextNodes.add(namedNode);
     }
 
     /**
@@ -235,13 +276,19 @@ public class ParserTemplateNormalizer {
         for (String part : path.split("\\.")) {
             String tokenName = part;
             Integer index = null;
+            boolean arrayWildcard = false;
             int bracketStart = part.indexOf('[');
             int bracketEnd = part.indexOf(']');
             if (bracketStart > 0 && bracketEnd > bracketStart) {
                 tokenName = part.substring(0, bracketStart);
-                index = Integer.parseInt(part.substring(bracketStart + 1, bracketEnd));
+                String bracketValue = part.substring(bracketStart + 1, bracketEnd);
+                if (bracketValue.isBlank()) {
+                    arrayWildcard = true;
+                } else {
+                    index = Integer.parseInt(bracketValue);
+                }
             }
-            tokens.add(new PathToken(tokenName, index));
+            tokens.add(new PathToken(tokenName, index, arrayWildcard));
         }
         return tokens;
     }
@@ -371,7 +418,7 @@ public class ParserTemplateNormalizer {
             Map<String, TemplateFieldHit> customFieldHits) {
         ObjectNode customFields = objectMapper.createObjectNode();
         config.customFieldMapping().forEach((fieldName, paths) -> {
-            FieldValue value = resolveCandidate(rawPayload, paths, fieldName, paths);
+            CustomFieldValue value = resolveCustomFieldCandidate(rawPayload, paths, fieldName);
             customFieldHits.put(
                     fieldName,
                     new TemplateFieldHit(
@@ -382,10 +429,39 @@ public class ParserTemplateNormalizer {
                             value.fallback(),
                             value.message()));
             if (value.matched()) {
-                customFields.put(fieldName, value.value());
+                customFields.set(fieldName, value.jsonValue());
             }
         });
         return customFields;
+    }
+
+    /**
+     * 解析自定义字段候选路径，支持 `items[].value` 聚合多个数组值。
+     *
+     * @param rawPayload 原始字段树
+     * @param paths 候选路径
+     * @param fieldName 自定义字段名称
+     * @return 自定义字段命中结果
+     */
+    private CustomFieldValue resolveCustomFieldCandidate(JsonNode rawPayload, List<String> paths, String fieldName) {
+        for (String path : paths) {
+            List<String> values = resolvePathValues(rawPayload, path).stream()
+                    .map(this::textValue)
+                    .filter(value -> value != null && !value.isBlank())
+                    .distinct()
+                    .toList();
+            if (values.isEmpty()) {
+                continue;
+            }
+            if (path.contains("[]")) {
+                ArrayNode arrayNode = objectMapper.createArrayNode();
+                values.forEach(arrayNode::add);
+                return new CustomFieldValue(fieldName, true, path, String.join(", ", values), false, null, arrayNode);
+            }
+            String value = values.get(0);
+            return new CustomFieldValue(fieldName, true, path, value, false, null, objectMapper.getNodeFactory().textNode(value));
+        }
+        return new CustomFieldValue(fieldName, false, null, null, false, "未命中可用字段", objectMapper.nullNode());
     }
 
     /**
@@ -459,7 +535,7 @@ public class ParserTemplateNormalizer {
         return value.strip();
     }
 
-    private record PathToken(String name, Integer index) {
+    private record PathToken(String name, Integer index, boolean arrayWildcard) {
     }
 
     private record FieldValue(
@@ -473,5 +549,15 @@ public class ParserTemplateNormalizer {
         private FieldValue withFallback(String path, String value, String message) {
             return new FieldValue(fieldName, true, path, value, true, message);
         }
+    }
+
+    private record CustomFieldValue(
+            String fieldName,
+            boolean matched,
+            String path,
+            String value,
+            boolean fallback,
+            String message,
+            JsonNode jsonValue) {
     }
 }

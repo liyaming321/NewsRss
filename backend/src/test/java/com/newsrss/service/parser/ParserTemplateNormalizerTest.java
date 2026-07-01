@@ -117,4 +117,46 @@ class ParserTemplateNormalizerTest {
         assertThat(result.item().publishedAt()).isNull();
         assertThat(result.warnings()).contains("publishedAt 时间解析失败：not-a-time");
     }
+
+    /**
+     * 验证自定义字段支持 `categories[].name` 通配数组路径，并聚合为 JSON 数组。
+     */
+    @Test
+    void shouldAggregateCustomFieldArrayByWildcardPath() throws Exception {
+        JsonNode rawPayload = objectMapper.readTree("""
+                {
+                  "title": "三友联众：拟回购股份",
+                  "link": "https://example.com/news/1",
+                  "publishedDate": "2026-07-01T11:35:15Z",
+                  "categories": [
+                    {"name": "公告"},
+                    {"name": "A股"},
+                    {"name": "股份变动"},
+                    {"name": "股份回购"},
+                    {"name": "三友联众"}
+                  ]
+                }
+                """);
+        ParserTemplateConfig config = new ParserTemplateConfig(
+                "category-template",
+                "分类聚合模板",
+                Map.of(),
+                Map.of("categories", List.of("categories[].name")),
+                List.of(),
+                List.of(),
+                List.of(),
+                new ParserTemplateConfig.CleanupRules(List.of(), List.of(), List.of()),
+                true);
+
+        TemplateNormalizedArticle result = normalizer.normalize("https://example.com/rss.xml", rawPayload, config);
+
+        assertThat(result.customFieldHits().get("categories").matched()).isTrue();
+        assertThat(result.customFieldHits().get("categories").path()).isEqualTo("categories[].name");
+        assertThat(result.customFieldHits().get("categories").value()).isEqualTo("公告, A股, 股份变动, 股份回购, 三友联众");
+        assertThat(result.item().customFields().get("categories")).isNotNull();
+        assertThat(result.item().customFields().get("categories").isArray()).isTrue();
+        assertThat(result.item().customFields().get("categories"))
+                .extracting(JsonNode::asText)
+                .containsExactly("公告", "A股", "股份变动", "股份回购", "三友联众");
+    }
 }

@@ -89,7 +89,7 @@ export interface NormalizedPreviewArticle {
   title: string | null
   summary: string | null
   contentHtml: string | null
-  customFields: Record<string, string> | null
+  customFields: Record<string, unknown> | null
   author: string | null
   publishedAt: string | null
   coverImageUrl: string | null
